@@ -2,129 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spelling Star</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Spelling Fun</title>
+
+<!-- Inline Web App Manifest to enable the Install button -->
+<link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22Spelling%20Fun%22%2C%22short_name%22%3A%22Spelling%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fapi.iconify.design%2Fnoto%3Astar.svg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
 <style>
-  :root {
-    --bg-color: #f7f9fc;
-    --card-bg: #ffffff;
-    --primary: #4a6cf7;
-    --accent: #22c55e;
-    --text: #1e293b;
-  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
     padding: 16px;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text);
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', cursive, sans-serif;
+    background: linear-gradient(135deg, #e0e7ff 0%, #fef3c7 100%);
+    min-height: 100vh;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
   }
-  .container {
-    max-width: 480px;
+  .app-card {
+    background: #ffffff;
     width: 100%;
-    background: var(--card-bg);
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    padding: 24px;
+    max-width: 420px;
+    border-radius: 28px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    padding: 20px;
     text-align: center;
-    box-sizing: border-box;
   }
-  .progress {
-    font-size: 14px;
-    font-weight: 600;
-    color: #64748b;
-    margin-bottom: 8px;
-  }
-  .word-box {
-    font-size: 40px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: var(--primary);
-    margin: 16px 0;
-    min-height: 50px;
-  }
-  .phonics-hint {
-    font-size: 18px;
+  .counter {
+    font-size: 16px;
+    font-weight: 700;
     color: #6366f1;
-    margin-bottom: 20px;
+    margin-bottom: 6px;
   }
-  .btn-row {
+  .target-word {
+    font-size: 44px;
+    font-weight: 900;
+    color: #1e1b4b;
+    letter-spacing: 2px;
+    margin: 8px 0;
+    min-height: 55px;
+  }
+  .target-word.hidden {
+    filter: blur(10px);
+  }
+  .spelled-slots {
     display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 14px 0 20px 0;
+    min-height: 48px;
+  }
+  .slot {
+    width: 42px;
+    height: 46px;
+    border-bottom: 4px solid #6366f1;
+    font-size: 28px;
+    font-weight: 800;
+    color: #4338ca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 8px;
+  }
+  .letters-grid {
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    margin-bottom: 24px;
+    margin: 18px 0;
   }
-  button {
+  .letter-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 26px;
+    font-weight: 800;
+    border-radius: 14px;
     border: none;
-    outline: none;
+    background: #4f46e5;
+    color: white;
+    box-shadow: 0 4px 0 #312e81;
     cursor: pointer;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 12px 20px;
-    transition: transform 0.1s ease;
+    transition: transform 0.1s;
   }
-  button:active {
-    transform: scale(0.97);
+  .letter-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #312e81;
   }
-  .btn-speak {
-    background: #e0e7ff;
-    color: #4338ca;
+  .letter-btn.used {
+    visibility: hidden;
   }
-  .btn-nav {
-    background: var(--primary);
-    color: #fff;
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .btn {
     flex: 1;
+    padding: 14px 8px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
   }
-  .test-input {
-    width: 90%;
-    font-size: 22px;
-    text-align: center;
-    padding: 10px;
-    border: 2px solid #cbd5e1;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    outline: none;
-  }
-  .test-input:focus {
-    border-color: var(--primary);
-  }
-  .feedback {
-    font-size: 18px;
-    font-weight: 700;
-    min-height: 24px;
-    margin-bottom: 12px;
-  }
-  .correct { color: var(--accent); }
-  .wrong { color: #ef4444; }
-  .hide-word {
-    filter: blur(8px);
-    user-select: none;
+  .btn:active { transform: translateY(3px); box-shadow: none; }
+  .btn-speak { background: #38bdf8; color: #082f49; }
+  .btn-hide { background: #facc15; color: #713f12; }
+  .btn-nav { background: #22c55e; color: white; }
+  .btn-back { background: #94a3b8; color: white; }
+  .celebrate {
+    font-size: 20px;
+    font-weight: 800;
+    color: #16a34a;
+    min-height: 28px;
+    margin: 6px 0;
   }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="progress" id="progressText">Word 1 of 75</div>
-  <div class="word-box" id="wordDisplay">Head</div>
-  <div class="phonics-hint" id="phonicsHint">H - E - A - D</div>
+<div class="app-card">
+  <div class="counter" id="counter">Word 1 of 75</div>
+  <div class="target-word" id="wordDisplay">Head</div>
+  <div class="celebrate" id="msg"></div>
 
-  <div class="btn-row">
-    <button class="btn-speak" onclick="speakCurrentWord()">🔊 Listen</button>
-    <button class="btn-speak" onclick="toggleHide()">👁️ Show/Hide</button>
+  <!-- Letter slots she fills in -->
+  <div class="spelled-slots" id="slots"></div>
+
+  <!-- Big tap buttons for her little fingers -->
+  <div class="letters-grid" id="letterChoices"></div>
+
+  <div class="action-row">
+    <button class="btn btn-speak" onclick="speakWord()">🔊 Say Word</button>
+    <button class="btn btn-hide" onclick="togglePeek()">👁️ Peek</button>
+    <button class="btn btn-back" onclick="resetCurrent()">🔄 Retry</button>
   </div>
 
-  <input type="text" id="practiceInput" class="test-input" placeholder="Type word here..." autocomplete="off" autocapitalize="none">
-  <div class="feedback" id="feedback"></div>
-
-  <div class="btn-row">
-    <button class="btn-nav" onclick="prevWord()">⬅ Previous</button>
-    <button class="btn-nav" onclick="checkSpelling()">✔ Check</button>
-    <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+  <div class="action-row" style="margin-top: 12px;">
+    <button class="btn btn-back" onclick="prevWord()">⬅ Back</button>
+    <button class="btn btn-nav" onclick="nextWord()">Next Word ➡</button>
   </div>
 </div>
 
@@ -141,69 +163,138 @@ const words = [
 ];
 
 let currentIndex = 0;
+let currentInput = [];
 let isHidden = false;
 
-function loadWord() {
-  const current = words[currentIndex];
-  document.getElementById("progressText").textContent = `Word ${currentIndex + 1} of ${words.length}`;
-  document.getElementById("wordDisplay").textContent = current;
-  document.getElementById("phonicsHint").textContent = current.split('').join(' • ');
-  document.getElementById("practiceInput").value = '';
-  document.getElementById("feedback").textContent = '';
+function setupWord() {
+  const word = words[currentIndex].toUpperCase();
+  currentInput = [];
+  document.getElementById("counter").textContent = `Word ${currentIndex + 1} of ${words.length}`;
+  document.getElementById("wordDisplay").textContent = words[currentIndex];
+  document.getElementById("msg").textContent = "";
+  
   if (isHidden) {
-    document.getElementById("wordDisplay").classList.add("hide-word");
+    document.getElementById("wordDisplay").classList.add("hidden");
   } else {
-    document.getElementById("wordDisplay").classList.remove("hide-word");
+    document.getElementById("wordDisplay").classList.remove("hidden");
+  }
+
+  // Draw empty answer slots
+  const slotsContainer = document.getElementById("slots");
+  slotsContainer.innerHTML = "";
+  for (let i = 0; i < word.length; i++) {
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.id = "slot-" + i;
+    slotsContainer.appendChild(slot);
+  }
+
+  // Scramble letters for tap buttons
+  const letters = word.split('');
+  const scrambled = [...letters].sort(() => Math.random() - 0.5);
+  
+  const choices = document.getElementById("letterChoices");
+  choices.innerHTML = "";
+  scrambled.forEach((char) => {
+    const btn = document.createElement("button");
+    btn.className = "letter-btn";
+    btn.textContent = char;
+    btn.onclick = () => tapLetter(char, btn);
+    choices.appendChild(btn);
+  });
+
+  speakWord();
+}
+
+function tapLetter(char, btn) {
+  const target = words[currentIndex].toUpperCase();
+  const nextIdx = currentInput.length;
+
+  if (nextIdx < target.length) {
+    // Speak letter phonics sound
+    speakPhonic(char);
+    
+    currentInput.push({ char, btn });
+    document.getElementById("slot-" + nextIdx).textContent = char;
+    btn.classList.add("used");
+
+    if (currentInput.length === target.length) {
+      checkResult();
+    }
   }
 }
 
-function speakCurrentWord() {
+function checkResult() {
+  const target = words[currentIndex].toUpperCase();
+  const typed = currentInput.map(i => i.char).join("");
+  const msg = document.getElementById("msg");
+
+  if (typed === target) {
+    msg.textContent = "🎉 Super Star! You did it! 🌟";
+    speakCheer();
+    setTimeout(() => {
+      if (currentIndex < words.length - 1) {
+        currentIndex++;
+        setupWord();
+      }
+    }, 1800);
+  } else {
+    msg.textContent = "Try again!";
+    setTimeout(resetCurrent, 800);
+  }
+}
+
+function resetCurrent() {
+  currentInput = [];
+  const target = words[currentIndex].toUpperCase();
+  for (let i = 0; i < target.length; i++) {
+    const slot = document.getElementById("slot-" + i);
+    if (slot) slot.textContent = "";
+  }
+  document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("used"));
+  document.getElementById("msg").textContent = "";
+}
+
+function speakWord() {
   const utter = new SpeechSynthesisUtterance(words[currentIndex]);
   utter.rate = 0.8;
+  utter.pitch = 1.1;
   window.speechSynthesis.speak(utter);
 }
 
-function toggleHide() {
-  isHidden = !isHidden;
-  document.getElementById("wordDisplay").classList.toggle("hide-word", isHidden);
+function speakPhonic(letter) {
+  const utter = new SpeechSynthesisUtterance(letter);
+  utter.rate = 0.9;
+  window.speechSynthesis.speak(utter);
 }
 
-function checkSpelling() {
-  const val = document.getElementById("practiceInput").value.trim().toLowerCase();
-  const target = words[currentIndex].toLowerCase();
-  const feedback = document.getElementById("feedback");
+function speakCheer() {
+  const utter = new SpeechSynthesisUtterance("Great job!");
+  utter.rate = 0.9;
+  utter.pitch = 1.2;
+  window.speechSynthesis.speak(utter);
+}
 
-  if (val === target) {
-    feedback.textContent = "🌟 Excellent! Correct!";
-    feedback.className = "feedback correct";
-  } else {
-    feedback.textContent = `Keep trying! (${words[currentIndex]})`;
-    feedback.className = "feedback wrong";
-  }
+function togglePeek() {
+  isHidden = !isHidden;
+  document.getElementById("wordDisplay").classList.toggle("hidden", isHidden);
 }
 
 function nextWord() {
   if (currentIndex < words.length - 1) {
     currentIndex++;
-    loadWord();
+    setupWord();
   }
 }
 
 function prevWord() {
   if (currentIndex > 0) {
     currentIndex--;
-    loadWord();
+    setupWord();
   }
 }
 
-document.getElementById("practiceInput").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    checkSpelling();
-  }
-});
-
-loadWord();
+setupWord();
 </script>
 </body>
 </html>
- 
