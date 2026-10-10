@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spelling Star</title>
+<style>
+  :root {
+    --bg-color: #f7f9fc;
+    --card-bg: #ffffff;
+    --primary: #4a6cf7;
+    --accent: #22c55e;
+    --text: #1e293b;
+  }
+  body {
+    margin: 0;
+    padding: 16px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container {
+    max-width: 480px;
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    padding: 24px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .progress {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+  .word-box {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin: 16px 0;
+    min-height: 50px;
+  }
+  .phonics-hint {
+    font-size: 18px;
+    color: #6366f1;
+    margin-bottom: 20px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 20px;
+    transition: transform 0.1s ease;
+  }
+  button:active {
+    transform: scale(0.97);
+  }
+  .btn-speak {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+  .btn-nav {
+    background: var(--primary);
+    color: #fff;
+    flex: 1;
+  }
+  .test-input {
+    width: 90%;
+    font-size: 22px;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  .test-input:focus {
+    border-color: var(--primary);
+  }
+  .feedback {
+    font-size: 18px;
+    font-weight: 700;
+    min-height: 24px;
+    margin-bottom: 12px;
+  }
+  .correct { color: var(--accent); }
+  .wrong { color: #ef4444; }
+  .hide-word {
+    filter: blur(8px);
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="progress" id="progressText">Word 1 of 75</div>
+  <div class="word-box" id="wordDisplay">Head</div>
+  <div class="phonics-hint" id="phonicsHint">H - E - A - D</div>
+
+  <div class="btn-row">
+    <button class="btn-speak" onclick="speakCurrentWord()">🔊 Listen</button>
+    <button class="btn-speak" onclick="toggleHide()">👁️ Show/Hide</button>
+  </div>
+
+  <input type="text" id="practiceInput" class="test-input" placeholder="Type word here..." autocomplete="off" autocapitalize="none">
+  <div class="feedback" id="feedback"></div>
+
+  <div class="btn-row">
+    <button class="btn-nav" onclick="prevWord()">⬅ Previous</button>
+    <button class="btn-nav" onclick="checkSpelling()">✔ Check</button>
+    <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+  </div>
+</div>
+
+<script>
+const words = [
+  "Head", "Eyes", "Ears", "Nose", "Neck", "Hands", "Arm", "Knee", "Legs", "Foot",
+  "Skin", "Tongue", "Father", "Mother", "Brother", "Sister", "Uncle", "Aunt", "Cousins", "Grandfather",
+  "Grandmother", "Family", "Big", "Small", "Joint", "Lion", "Tiger", "Elephant", "Bear", "Zebra",
+  "Monkey", "Giraffe", "Deer", "Snake", "Fox", "Cow", "Duck", "Sheep", "Goat", "Horse",
+  "Hen", "Cat", "Dog", "Parrot", "Fish", "Camel", "Pigeon", "Sparrow", "Peacock", "Crow",
+  "Owl", "Eagle", "Insects", "Ant", "Butterfly", "Ladybird", "Honeybee", "Grasshopper", "Housefly", "Mosquito",
+  "Bedbug", "Ship", "Boat", "Bike", "Car", "Van", "Bus", "Aeroplane", "Jet", "Jeep",
+  "Wait", "Stop", "Go", "Metro", "Train"
+];
+
+let currentIndex = 0;
+let isHidden = false;
+
+function loadWord() {
+  const current = words[currentIndex];
+  document.getElementById("progressText").textContent = `Word ${currentIndex + 1} of ${words.length}`;
+  document.getElementById("wordDisplay").textContent = current;
+  document.getElementById("phonicsHint").textContent = current.split('').join(' • ');
+  document.getElementById("practiceInput").value = '';
+  document.getElementById("feedback").textContent = '';
+  if (isHidden) {
+    document.getElementById("wordDisplay").classList.add("hide-word");
+  } else {
+    document.getElementById("wordDisplay").classList.remove("hide-word");
+  }
+}
+
+function speakCurrentWord() {
+  const utter = new SpeechSynthesisUtterance(words[currentIndex]);
+  utter.rate = 0.8;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleHide() {
+  isHidden = !isHidden;
+  document.getElementById("wordDisplay").classList.toggle("hide-word", isHidden);
+}
+
+function checkSpelling() {
+  const val = document.getElementById("practiceInput").value.trim().toLowerCase();
+  const target = words[currentIndex].toLowerCase();
+  const feedback = document.getElementById("feedback");
+
+  if (val === target) {
+    feedback.textContent = "🌟 Excellent! Correct!";
+    feedback.className = "feedback correct";
+  } else {
+    feedback.textContent = `Keep trying! (${words[currentIndex]})`;
+    feedback.className = "feedback wrong";
+  }
+}
+
+function nextWord() {
+  if (currentIndex < words.length - 1) {
+    currentIndex++;
+    loadWord();
+  }
+}
+
+function prevWord() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    loadWord();
+  }
+}
+
+document.getElementById("practiceInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    checkSpelling();
+  }
+});
+
+loadWord();
+</script>
+</body>
+</html>
