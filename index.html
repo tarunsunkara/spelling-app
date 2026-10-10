@@ -45,6 +45,7 @@
     letter-spacing: 2px;
     margin: 8px 0;
     min-height: 55px;
+    transition: filter 0.3s ease;
   }
   .target-word.hidden {
     filter: blur(10px);
@@ -113,7 +114,6 @@
   }
   .btn:active { transform: translateY(3px); box-shadow: none; }
   .btn-speak { background: #38bdf8; color: #082f49; }
-  .btn-hide { background: #facc15; color: #713f12; }
   .btn-nav { background: #22c55e; color: white; }
   .btn-back { background: #94a3b8; color: white; }
   .celebrate {
@@ -129,18 +129,17 @@
 
 <div class="app-card">
   <div class="counter" id="counter">Word 1 of 75</div>
-  <div class="target-word" id="wordDisplay">Head</div>
+  <div class="target-word hidden" id="wordDisplay">Head</div>
   <div class="celebrate" id="msg"></div>
 
-  <!-- Letter slots she fills in -->
+  <!-- Letter slots -->
   <div class="spelled-slots" id="slots"></div>
 
-  <!-- Big tap buttons for her little fingers -->
+  <!-- Tap buttons -->
   <div class="letters-grid" id="letterChoices"></div>
 
   <div class="action-row">
     <button class="btn btn-speak" onclick="speakWord()">🔊 Say Word</button>
-    <button class="btn btn-hide" onclick="togglePeek()">👁️ Peek</button>
     <button class="btn btn-back" onclick="resetCurrent()">🔄 Retry</button>
   </div>
 
@@ -164,7 +163,6 @@ const words = [
 
 let currentIndex = 0;
 let currentInput = [];
-let isHidden = false;
 
 function setupWord() {
   const word = words[currentIndex].toUpperCase();
@@ -173,11 +171,8 @@ function setupWord() {
   document.getElementById("wordDisplay").textContent = words[currentIndex];
   document.getElementById("msg").textContent = "";
   
-  if (isHidden) {
-    document.getElementById("wordDisplay").classList.add("hidden");
-  } else {
-    document.getElementById("wordDisplay").classList.remove("hidden");
-  }
+  // Blur the word at the start of each level
+  document.getElementById("wordDisplay").classList.add("hidden");
 
   // Draw empty answer slots
   const slotsContainer = document.getElementById("slots");
@@ -230,6 +225,8 @@ function checkResult() {
   const msg = document.getElementById("msg");
 
   if (typed === target) {
+    // Unblur the word when answered correctly
+    document.getElementById("wordDisplay").classList.remove("hidden");
     msg.textContent = "🎉 Super Star! You did it! 🌟";
     speakCheer();
     setTimeout(() => {
@@ -253,6 +250,9 @@ function resetCurrent() {
   }
   document.querySelectorAll(".letter-btn").forEach(b => b.classList.remove("used"));
   document.getElementById("msg").textContent = "";
+  
+  // Keep it blurred on retry
+  document.getElementById("wordDisplay").classList.add("hidden");
 }
 
 function speakWord() {
@@ -273,11 +273,6 @@ function speakCheer() {
   utter.rate = 0.9;
   utter.pitch = 1.2;
   window.speechSynthesis.speak(utter);
-}
-
-function togglePeek() {
-  isHidden = !isHidden;
-  document.getElementById("wordDisplay").classList.toggle("hidden", isHidden);
 }
 
 function nextWord() {
